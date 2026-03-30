@@ -1,0 +1,40 @@
+spring:
+  application:
+    name: notification-service
+
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: notification-service-group
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+
+  mail:
+    host: localhost
+    port: 1025
+    username: test
+    password: test
+    properties:
+      mail:
+        smtp:
+          auth: false
+          starttls:
+            enable: false
+          ssl:
+            trust: "*"
+
+server:
+  port: 8081
+
+app:
+  site-name: UserService
+  kafka:
+    topic:
+      user-events: user-events
+
+logging:
+  level:
+    org.example.notificationservice: DEBUG
+    org.springframework.kafka: INFO
