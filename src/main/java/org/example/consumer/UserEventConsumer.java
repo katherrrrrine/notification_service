@@ -5,7 +5,6 @@ import org.example.dto.UserEventDto;
 import org.example.service.EmailService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
@@ -17,7 +16,6 @@ public class UserEventConsumer {
     private final EmailService emailService;
     private final ObjectMapper objectMapper;
 
-    @Autowired
     public UserEventConsumer(EmailService emailService, ObjectMapper objectMapper) {
         this.emailService = emailService;
         this.objectMapper = objectMapper;

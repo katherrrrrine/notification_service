@@ -1,9 +1,9 @@
 package org.example.service;
 
 import org.example.dto.UserEventDto;
+import org.example.validation.EmailValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -22,15 +22,16 @@ public class EmailService {
     @Value("${app.site-name:UserService}")
     private String siteName;
 
-    @Autowired
     public EmailService(JavaMailSender mailSender) {
         this.mailSender = mailSender;
     }
 
     public void sendUserEventNotification(UserEventDto event) {
-        if (event.getEmail() == null || event.getEmail().trim().isEmpty()) {
-            logger.error("Не удалось отправить email: адрес пустой или null");
-            throw new RuntimeException("Email адрес не может быть пустым");
+        EmailValidator.validate(event.getEmail());
+
+        if (event.getEventType() == null) {
+            logger.error("Тип события не может быть null");
+            throw new RuntimeException("Тип события не может быть null");
         }
 
         String subject = getSubject(event.getEventType());
@@ -40,10 +41,18 @@ public class EmailService {
     }
 
     public void sendCustomEmail(String to, String subject, String message) {
-        if (to == null || to.trim().isEmpty()) {
-            logger.error("Не удалось отправить email: адрес пустой");
-            throw new RuntimeException("Email адрес не может быть пустым");
+        EmailValidator.validate(to);
+
+        if (subject == null || subject.trim().isEmpty()) {
+            logger.error("Тема письма не может быть пустой");
+            throw new RuntimeException("Тема письма не может быть пустой");
         }
+
+        if (message == null || message.trim().isEmpty()) {
+            logger.error("Сообщение не может быть пустым");
+            throw new RuntimeException("Сообщение не может быть пустым");
+        }
+
         sendEmail(to, subject, message);
     }
 
@@ -78,9 +87,9 @@ public class EmailService {
     private String getMessage(UserEventDto.EventType eventType, String email) {
         switch (eventType) {
             case CREATED:
-                return String.format("Здравствуйте!\n\n" + "Ваш аккаунт на сайте %s был успешно создан.\n\n", siteName);
+                return String.format("Здравствуйте!\n\nВаш аккаунт на сайте %s был успешно создан.\n\n", siteName);
             case DELETED:
-                return String.format("Здравствуйте!\n\n" + "Ваш аккаунт на сайте %s был удалён.\n\n", siteName);
+                return String.format("Здравствуйте!\n\nВаш аккаунт на сайте %s был удалён.\n\n", siteName);
             default:
                 return "Уведомление от " + siteName;
         }
